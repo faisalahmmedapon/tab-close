@@ -1,0 +1,157 @@
+@extends('frontend.layouts.app')
+
+
+@push('css')
+    <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet"/>
+@endpush
+@section('content')
+
+    <div class="row py-2">
+
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-4 mx-auto">
+{{--                    <p class="text-center bg-info"> <span id="days"></span> : <span id="hours"></span> : <span id="mins"></span>: <span id="secs"></span> </p>--}}
+                    <div class="output"></div>
+                </div>
+                <div class="col-md-4 mx-auto">
+                    <p class="text-center"><strong> {{$school->name}} </strong></p>
+                    <p class="text-center"> {{$exam->name ?? ''}}</p>
+                </div>
+                <div class="col-md-4 mx-auto">
+                    <p class="d-flex justify-content-end ">
+                        <strong>
+                            <span id="days"></span> : <span id="hours"></span> : <span id="mins"></span>: <span id="secs"></span>
+                        </strong>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 py-2">
+            <div class="d-flex justify-content-between" style="border-bottom: 2px solid #dddddd">
+                <p> Time : {{$exam->time}}</p>
+                <p> Mark : {{$exam->question_quantity}} </p>
+            </div>
+            <div class="py-2">
+                <p><strong> Instruction </strong> {{$exam->instruction}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row  py-2 ">
+        <div class="col-md-12">
+            <form action="{{route('exam.result',$exam->name)}}" method="POST">
+                @csrf
+                <div class=" row pb-5">
+                    @foreach($exam->exam_questions as $key=>$exam_question)
+                        <div class="col-md-6 mb-2">
+
+                            <div class="card p-2 ">
+                                <p> {{$key+1}}. {{$exam_question->question}}</p>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio"
+                                                   name="question_id_{{$exam_question->id}}"
+                                                   id="{{$exam_question->id}}answer_a"
+                                                   value="{{$exam_question->answer_a}}">
+                                            <label class="form-check-label" for="{{$exam_question->id}}answer_a">
+                                                {{$exam_question->answer_a}}
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio"
+                                                   name="question_id_{{$exam_question->id}}"
+                                                   id="{{$exam_question->id}}answer_b"
+                                                   value="{{$exam_question->answer_b}}">
+                                            <label class="form-check-label" for="{{$exam_question->id}}answer_b">
+                                                {{$exam_question->answer_b}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio"
+                                                   name="question_id_{{$exam_question->id}}"
+                                                   id="{{$exam_question->id}}answer_c"
+                                                   value="{{$exam_question->answer_c}}">
+                                            <label class="form-check-label" for="{{$exam_question->id}}answer_c">
+                                                {{$exam_question->answer_c}}
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio"
+                                                   name="question_id_{{$exam_question->id}}"
+                                                   id="{{$exam_question->id}}answer_d"
+                                                   value="{{$exam_question->answer_d}}">
+                                            <label class="form-check-label" for="{{$exam_question->id}}answer_d">
+                                                {{$exam_question->answer_d}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <a href="{{url('/')}}" class="btn btn-danger float-start">Back</a>
+                <button type="submit" class="btn btn-success float-end">Submit</button>
+            </form>
+        </div>
+    </div>
+
+{{--    <h2 id="end"></h2>--}}
+    {{$exam->time}}
+@endsection
+
+
+
+@push('js')
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+
+    <script>
+        // Test harness
+
+        var hms = '00:01:00';   // your input string
+        var a = hms.split(':'); // split it at the colons
+
+        // minutes are worth 60 seconds. Hours are worth 60 minutes.
+        var seconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]);
+
+        // console.log(seconds);
+        
+        const demo = () => {
+            // var seconds = 1.5*60*60;
+            var $output = document.querySelector('.output');
+
+            return () => {
+                if (seconds >= 0) {
+                    $output.innerHTML = `${formatSeconds(seconds)} (${seconds} seconds)`;
+                    seconds--;
+                }else {
+                    setInterval(toastr.success("Opps! Time is up,Try Again"),2000);
+
+                    alert("ok");
+                    window.close();
+                }
+            };
+        }
+        setInterval(demo(), 1000);
+
+        // The function
+        const formatSeconds = (secs) => {
+            const pad = (n) => n < 10 ? `0${n}` : n;
+
+            const h = Math.floor(secs / 3600);
+            const m = Math.floor(secs / 60) - (h * 60);
+            const s = Math.floor(secs - h * 3600 - m * 60);
+
+            return `${pad(h)}:${pad(m)}:${pad(s)}`;
+        }
+    </script>
+
+@endpush
